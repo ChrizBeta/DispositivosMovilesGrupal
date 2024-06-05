@@ -3,12 +3,17 @@ package com.ramos.myapplication.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.carousel.CarouselLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.ramos.myapplication.R
 import com.ramos.myapplication.databinding.ActivityConstrainBinding
 import com.ramos.myapplication.logic.usercases.GetAllTopsNewUserCase
 import com.ramos.myapplication.ui.adapters.NewsAdapter
@@ -16,6 +21,20 @@ import com.ramos.myapplication.ui.entities.NewsDataUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+
+class ModalBottomSheet : BottomSheetDialogFragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? = inflater.inflate(R.layout.compartir_bottom_sheet, container, false)
+
+    companion object {
+        const val TAG = "ModalBottomSheet"
+    }
+}
 
 class ConstrainActivity : AppCompatActivity() {
 
@@ -54,6 +73,20 @@ class ConstrainActivity : AppCompatActivity() {
 
         binding.btnInsert.setOnClickListener {
             addItem()
+        }
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_dashboard -> {
+                    val modalBottomSheet = ModalBottomSheet()
+                    modalBottomSheet.show(supportFragmentManager, ModalBottomSheet.TAG)
+                    true
+                }
+
+                else -> {
+
+                    false
+                }
+            }
         }
     }
 
