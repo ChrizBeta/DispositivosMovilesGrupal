@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/degradado1"
+    android:background="@drawable/degradado2"
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".ui.activities.MainActivity">
@@ -21,7 +21,7 @@
         <ImageView
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:src="@drawable/edgerunners"
+        android:src="@drawable/person"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +32,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="30dp"
             android:layout_marginTop="30dp"
-            android:text="Así que... vuelve arrastrándose?"
+            android:text="Login"
             android:textColor="@color/black"
             android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -72,7 +72,6 @@
             android:layout_height="62dp"
             android:layout_margin="20dp"
             android:text="@string/btn_login_text"
-            app:icon="@drawable/login"
             app:iconGravity="end"
             app:iconTint="@color/white" />
 

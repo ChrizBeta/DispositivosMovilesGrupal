@@ -18,7 +18,7 @@ class ConstrainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityConstrainBinding
     private var items: MutableList<NewsDataUI> = mutableListOf()
-    private lateinit var newsDiffutilAdapter: NewsDiffutilAdapter
+    private lateinit var newsListAdapter: NewsDiffutilAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +30,11 @@ class ConstrainActivity : AppCompatActivity() {
     }
 
     private fun initVariables() {
-        newsDiffutilAdapter = NewsDiffutilAdapter(
+        newsListAdapter = NewsDiffutilAdapter(
             { descriptionItem(it) },
             { deleteItem(it) }
         )
-        binding.rvTopNews.adapter = newsDiffutilAdapter
+        binding.rvTopNews.adapter = newsListAdapter
         binding.rvTopNews.layoutManager = CarouselLayoutManager()
     }
 
@@ -51,14 +51,16 @@ class ConstrainActivity : AppCompatActivity() {
 
     private fun initData() {
         binding.pgbarLoadData.visibility = View.VISIBLE
+        binding.animationView.visibility=View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
             val resultItems = GetAllTopsNewUserCase().invoke()
             withContext(Dispatchers.Main) {
                 binding.pgbarLoadData.visibility = View.INVISIBLE
+                binding.animationView.visibility = View.GONE
 
                 resultItems.onSuccess {
                     items = it.toMutableList()
-                    newsDiffutilAdapter.submitList(items.toList())
+                    newsListAdapter.submitList(items.toList())
                 }
 
                 resultItems.onFailure {
@@ -75,20 +77,27 @@ class ConstrainActivity : AppCompatActivity() {
 
     private fun deleteItem(position: Int) {
         items.removeAt(position)
-        newsDiffutilAdapter.submitList(items.toList())
+        newsListAdapter.submitList(items.toList())
     }
 
     private fun addItem() {
-        items.add(
-            NewsDataUI(
-                "1",
-                "www.google.com",
-                "Noticia fake",
-                "imagen_aleatoria",
-                "description_fantasma",
-                "ES"
-            )
-        )
-        newsDiffutilAdapter.submitList(items.toList())
+        lifecycleScope.launch(Dispatchers.IO) {
+            val resultItems = GetAllTopsNewUserCase().invoke()
+            withContext(Dispatchers.Main) {
+                resultItems.onSuccess { newsList ->
+                    if (newsList.isNotEmpty()) {
+                        val newItem = newsList.random()  // Puedes cambiar esto para obtener un elemento específico si lo deseas
+                        items.add(newItem)
+                        newsListAdapter.submitList(items.toList())
+                    } else {
+                        Snackbar.make(binding.refreshRV, "No new items available", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+
+                resultItems.onFailure {
+                    Snackbar.make(binding.refreshRV, it.message.toString(), Snackbar.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }
