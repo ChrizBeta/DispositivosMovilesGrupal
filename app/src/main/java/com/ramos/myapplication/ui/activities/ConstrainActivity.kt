@@ -1,17 +1,14 @@
 package com.ramos.myapplication.ui.activities
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.carousel.CarouselLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.ramos.myapplication.databinding.ActivityConstrainBinding
 import com.ramos.myapplication.logic.usercases.GetAllTopsNewUserCase
-import com.ramos.myapplication.ui.adapters.NewsAdapter
+import com.ramos.myapplication.ui.adapters.NewsDiffutilAdapter
 import com.ramos.myapplication.ui.entities.NewsDataUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,28 +18,23 @@ class ConstrainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityConstrainBinding
     private var items: MutableList<NewsDataUI> = mutableListOf()
-    private lateinit var newsAdapter: NewsAdapter
+    private lateinit var newsDiffutilAdapter: NewsDiffutilAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityConstrainBinding.inflate(layoutInflater)
-
         setContentView(binding.root)
         initVariables()
         initListeners()
         initData()
-
-
     }
 
     private fun initVariables() {
-        newsAdapter = NewsAdapter(
+        newsDiffutilAdapter = NewsDiffutilAdapter(
             { descriptionItem(it) },
-            { deleteItem(it) })
-        binding.rvTopNews.adapter = newsAdapter
-//        binding.rvTopNews.layoutManager = LinearLayoutManager(
-//            this, LinearLayoutManager.VERTICAL, false
-//        )
+            { deleteItem(it) }
+        )
+        binding.rvTopNews.adapter = newsDiffutilAdapter
         binding.rvTopNews.layoutManager = CarouselLayoutManager()
     }
 
@@ -60,15 +52,13 @@ class ConstrainActivity : AppCompatActivity() {
     private fun initData() {
         binding.pgbarLoadData.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
-
             val resultItems = GetAllTopsNewUserCase().invoke()
             withContext(Dispatchers.Main) {
                 binding.pgbarLoadData.visibility = View.INVISIBLE
 
                 resultItems.onSuccess {
                     items = it.toMutableList()
-                    newsAdapter.itemList = items
-                    newsAdapter.notifyDataSetChanged()
+                    newsDiffutilAdapter.submitList(items.toList())
                 }
 
                 resultItems.onFailure {
@@ -81,17 +71,11 @@ class ConstrainActivity : AppCompatActivity() {
 
     private fun descriptionItem(news: NewsDataUI) {
         Snackbar.make(binding.refreshRV, news.name, Snackbar.LENGTH_LONG).show()
-//        Log.d("UUID", news.id)
-//        val intent = Intent(this, DetailItemActivity::class.java).apply {
-//            putExtra("id", news.id)
-//        }
-//        startActivity(intent)
     }
 
     private fun deleteItem(position: Int) {
         items.removeAt(position)
-        newsAdapter.itemList = items
-        newsAdapter.notifyItemRemoved(position)
+        newsDiffutilAdapter.submitList(items.toList())
     }
 
     private fun addItem() {
@@ -105,7 +89,6 @@ class ConstrainActivity : AppCompatActivity() {
                 "ES"
             )
         )
-        newsAdapter.itemList = items
-        newsAdapter.notifyItemInserted(items.size - 1)
+        newsDiffutilAdapter.submitList(items.toList())
     }
 }
